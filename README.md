@@ -1,4 +1,14 @@
-# HC06 examplo
+# Controle para Shell Shockers
+
+## Comandos:
+- Joystick da esquerda: Movimentar o personagem
+- Botão gatilho da esquerda: Granada
+- Joystick da direita: Movimentar a tela
+- Botão gatilho da direita: Mirar
+- Botão "A": Atirar
+- Botão "F": Facada
+- Botão "R": Recarregar
+- Botão "P": Pular
 
 Conectar HC06 no 5V e gnd, pino TX no `GP5` e pino RX no `GP4`. Também é necessário conectar o pino `STATE` do bluetooth no pino `GP3`.
 
