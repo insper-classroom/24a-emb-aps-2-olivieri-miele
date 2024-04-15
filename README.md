@@ -2,13 +2,13 @@
 
 ## Comandos:
 - Joystick da esquerda: Movimentar o personagem
-- Botão do joystick da esquerda: Pular
+- Botão gatilho da esquerda: Granada
 - Joystick da direita: Movimentar a tela
-- Botão do joystick da direita: Mirar
-- Botão verde: Atirar
-- Botão vermelho: Facada
-- Botão amarelo: Recarregar
-- Botão azul: Granada
+- Botão gatilho da direita: Mirar
+- Botão "A": Atirar
+- Botão "F": Facada
+- Botão "R": Recarregar
+- Botão "P": Pular
 
 Conectar HC06 no 5V e gnd, pino TX no `GP5` e pino RX no `GP4`. Também é necessário conectar o pino `STATE` do bluetooth no pino `GP3`.
 
