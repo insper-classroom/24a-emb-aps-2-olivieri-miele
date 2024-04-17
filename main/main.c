@@ -15,12 +15,17 @@
 
 #include "hardware/adc.h"
 
-const int BTN_PIN_1 = 21;
-const int BTN_PIN_2 = 20;
-const int BTN_PIN_3 = 19;
-const int BTN_PIN_4 = 18;
-const int BTN_PIN_5 = 17;
-const int BTN_PIN_6 = 16;
+const int BTN_PIN_1 = 12;
+const int BTN_PIN_2 = 13;
+const int BTN_PIN_3 = 14;
+const int BTN_PIN_4 = 15;
+const int BTN_PIN_5 = 16;
+const int BTN_PIN_6 = 17;
+const int BTN_PIN_7 = 18;
+const int BTN_PIN_8 = 19;
+const int BTN_PIN_9 = 20;
+const int BTN_PIN_10 = 21;
+const int BTN_PIN_11 = 22;
 
 const int PIN_X = 26;
 const int PIN_Y = 27;
@@ -33,32 +38,129 @@ typedef struct adc {
     int val;
 } adc_t;
 
+void write_package(adc_t data){
+    int val = data.val;
+    int msb = val >> 8;
+    int lsb = val & 0xFF;
+    uart_putc_raw(uart0, data.axis);
+    uart_putc_raw(uart0, lsb);
+    uart_putc_raw(uart0, msb);
+    uart_putc_raw(uart0, -1);
+}
+
 void gpio_callback(uint gpio, uint32_t events) {
-    int btn;
+    adc_t btn;
     if (gpio == BTN_PIN_1){
-            btn = 1;
-            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        if (events == 0x4) { //fall edge
+            btn.axis = 11;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 11;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
     if (gpio == BTN_PIN_2){
-            btn = 2;
-            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        if (events == 0x4) { //fall edge
+            btn.axis = 12;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 12;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
     if (gpio == BTN_PIN_3){
-            btn = 3;
-            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        if (events == 0x4) { //fall edge
+            btn.axis = 13;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 13;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
     if (gpio == BTN_PIN_4){
-            btn = 4;
-            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        if (events == 0x4) { //fall edge
+            btn.axis = 14;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 14;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
     if (gpio == BTN_PIN_5){
-            btn = 5;
-            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        if (events == 0x4) { //fall edge
+            btn.axis = 15;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 15;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
     if (gpio == BTN_PIN_6){
-            btn = 6;
-            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        if (events == 0x4) { //fall edge
+            btn.axis = 16;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 16;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
+    if (gpio == BTN_PIN_7){
+        if (events == 0x4) { //fall edge
+            btn.axis = 17;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 17;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
+    }
+    if (gpio == BTN_PIN_8){
+        if (events == 0x4) { //fall edge
+            btn.axis = 18;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 18;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
+    }
+    if (gpio == BTN_PIN_9){
+        if (events == 0x4) { //fall edge
+            btn.axis = 19;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 19;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
+    }
+    if (gpio == BTN_PIN_10){
+        if (events == 0x4) { //fall edge
+            btn.axis = 20;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 20;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
+    }
+    if (gpio == BTN_PIN_11){
+        if (events == 0x4) { //fall edge
+            btn.axis = 21;
+            btn.val = 1;
+        } else { //rise edge
+            btn.axis = 21;
+            btn.val = 1;
+        }
+        xQueueSendFromISR(xQueueBtn, &btn, 0);
+    }
+    
 }
 
 void oled_btn_init(void) {
@@ -67,37 +169,67 @@ void oled_btn_init(void) {
     gpio_set_dir(BTN_PIN_1, GPIO_IN);
     gpio_pull_up(BTN_PIN_1);
     gpio_set_irq_enabled_with_callback(
-        BTN_PIN_1, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+        BTN_PIN_1, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 
     gpio_init(BTN_PIN_2);
     gpio_set_dir(BTN_PIN_2, GPIO_IN);
     gpio_pull_up(BTN_PIN_2);
     gpio_set_irq_enabled_with_callback(
-        BTN_PIN_2, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+        BTN_PIN_2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 
     gpio_init(BTN_PIN_3);
     gpio_set_dir(BTN_PIN_3, GPIO_IN);
     gpio_pull_up(BTN_PIN_3);
     gpio_set_irq_enabled_with_callback(
-        BTN_PIN_3, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+        BTN_PIN_3, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 
     gpio_init(BTN_PIN_4);  // Adicionado
     gpio_set_dir(BTN_PIN_4, GPIO_IN);
     gpio_pull_up(BTN_PIN_4);
     gpio_set_irq_enabled_with_callback(
-        BTN_PIN_4, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+        BTN_PIN_4, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 
     gpio_init(BTN_PIN_5);  // Adicionado
     gpio_set_dir(BTN_PIN_5, GPIO_IN);
     gpio_pull_up(BTN_PIN_5);
     gpio_set_irq_enabled_with_callback(
-        BTN_PIN_5, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+        BTN_PIN_5, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 
     gpio_init(BTN_PIN_6);  // Adicionado
     gpio_set_dir(BTN_PIN_6, GPIO_IN);
     gpio_pull_up(BTN_PIN_6);
     gpio_set_irq_enabled_with_callback(
-        BTN_PIN_6, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+        BTN_PIN_6, GPIO_IRQ_EDGE_FALL |GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+        
+    gpio_init(BTN_PIN_7);  // Adicionado
+    gpio_set_dir(BTN_PIN_7, GPIO_IN);
+    gpio_pull_up(BTN_PIN_7);
+    gpio_set_irq_enabled_with_callback(
+        BTN_PIN_7, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    
+    gpio_init(BTN_PIN_8);  // Adicionado
+    gpio_set_dir(BTN_PIN_8, GPIO_IN);
+    gpio_pull_up(BTN_PIN_8);
+    gpio_set_irq_enabled_with_callback(
+        BTN_PIN_8, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+
+    gpio_init(BTN_PIN_9);  // Adicionado
+    gpio_set_dir(BTN_PIN_9, GPIO_IN);
+    gpio_pull_up(BTN_PIN_9);
+    gpio_set_irq_enabled_with_callback(
+        BTN_PIN_9, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+
+    gpio_init(BTN_PIN_10);  // Adicionado
+    gpio_set_dir(BTN_PIN_10, GPIO_IN);
+    gpio_pull_up(BTN_PIN_10);
+    gpio_set_irq_enabled_with_callback(
+        BTN_PIN_10, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+
+    gpio_init(BTN_PIN_11);  // Adicionado
+    gpio_set_dir(BTN_PIN_11, GPIO_IN);
+    gpio_pull_up(BTN_PIN_11);
+    gpio_set_irq_enabled_with_callback(
+        BTN_PIN_11, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 }
 
 
@@ -115,10 +247,10 @@ void oled_btn_init(void) {
 
 void btns_task(void *p) {
     oled_btn_init();
-    int btn;
+    adc_t btn;
     while (1) {
         if (xQueueReceive(xQueueBtn, &btn, portMAX_DELAY)){
-            //printf("Botão %d apertado!\n", btn);
+            write_package(btn);
         }
     }
 }
@@ -232,15 +364,6 @@ void y_task(void *p) {
     }
 }
 
-void write_package(adc_t data){
-    int val = data.val;
-    int msb = val >> 8;
-    int lsb = val & 0xFF;
-    uart_putc_raw(uart0, data.axis);
-    uart_putc_raw(uart0, lsb);
-    uart_putc_raw(uart0, msb);
-    uart_putc_raw(uart0, -1);
-}
 
 void uart_task(void *p) {
     adc_t data;
@@ -252,12 +375,12 @@ void uart_task(void *p) {
     }
 }
 
-int main() {
+    int main() {
     stdio_init_all();
 
     //printf("Start bluetooth task\n");
 
-    xQueueBtn = xQueueCreate(32, sizeof(int));
+    xQueueBtn = xQueueCreate(32, sizeof(adc_t));
     xQueueAdc = xQueueCreate(32, sizeof(adc_t));
 
     xTaskCreate(x_task, "x_task", 4096, NULL, 1, NULL);
