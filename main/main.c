@@ -56,7 +56,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 11;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -66,7 +66,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 12;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -76,7 +76,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 13;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -86,7 +86,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 14;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -96,7 +96,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 15;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -106,7 +106,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 16;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -116,7 +116,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 17;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -126,7 +126,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 18;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -136,7 +136,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 19;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -146,7 +146,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 20;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -156,7 +156,7 @@ void gpio_callback(uint gpio, uint32_t events) {
             btn.val = 1;
         } else { //rise edge
             btn.axis = 21;
-            btn.val = 1;
+            btn.val = 0;
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
@@ -257,18 +257,18 @@ void btns_task(void *p) {
 
 int transform_to_centered_scale(uint16_t adc_value) {
     // Transforma de 0-4095 para -2047 a +2047
-    return adc_value - 2048;
+    return adc_value - 1900;
 }
 
 int reduce_resolution(int centered_value) {
     // Mapeia de -2047 a +2047 para -255 a +255
     // Isto pode ser feito dividindo o valor centralizado por 8, assumindo que a relação de escala é linear
-    return centered_value / 8;
+    return centered_value / 12;
 }
 
 int apply_dead_zone(int reduced_value) {
     // Se o valor estiver dentro de -30 a +30, defina como zero
-    if (reduced_value >= -30 && reduced_value <= 30) {
+    if (reduced_value >= -50 && reduced_value <= 50) {
         return 0;
     }
     return reduced_value;
@@ -309,6 +309,7 @@ void x_task(void  *p) {
         adc_t x;
         x.axis = 0;
         x.val = movingAverage;
+        //x.val = result;
 
         xQueueSend(xQueueAdc, &x, 0);
 
@@ -354,6 +355,7 @@ void y_task(void *p) {
         adc_t y;
         y.axis = 1;
         y.val = movingAverage;
+        //y.val = result;
 
         xQueueSend(xQueueAdc, &y, 0);
 

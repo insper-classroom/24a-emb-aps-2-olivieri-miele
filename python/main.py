@@ -26,7 +26,7 @@ num_2_key = {
     12: uinput.KEY_A, #A
     13: uinput.KEY_S, #S
     14: uinput.KEY_D, #D
-    15: uinput.BTN_RIGHT, #Fire
+    15: uinput.BTN_LEFT, #Fire
     16: uinput.KEY_LEFTSHIFT, #Aim
     17: uinput.KEY_SPACE, #Jump
     18: uinput.KEY_F, #Melee
