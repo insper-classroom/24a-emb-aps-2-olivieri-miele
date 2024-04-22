@@ -42,10 +42,14 @@ void write_package(adc_t data){
     int val = data.val;
     int msb = val >> 8;
     int lsb = val & 0xFF;
-    uart_putc_raw(uart0, data.axis);
-    uart_putc_raw(uart0, lsb);
-    uart_putc_raw(uart0, msb);
-    uart_putc_raw(uart0, -1);
+    // uart_putc_raw(uart0, data.axis);
+    // uart_putc_raw(uart0, lsb);
+    // uart_putc_raw(uart0, msb);
+    // uart_putc_raw(uart0, -1);
+    uart_putc_raw(HC06_UART_ID, data.axis);
+    uart_putc_raw(HC06_UART_ID, lsb);
+    uart_putc_raw(HC06_UART_ID, msb);
+    uart_putc_raw(HC06_UART_ID, -1);
 }
 
 void gpio_callback(uint gpio, uint32_t events) {
@@ -245,15 +249,6 @@ void oled_btn_init(void) {
 //     }
 // }
 
-void btns_task(void *p) {
-    oled_btn_init();
-    adc_t btn;
-    while (1) {
-        if (xQueueReceive(xQueueBtn, &btn, portMAX_DELAY)){
-            write_package(btn);
-        }
-    }
-}
 
 int transform_to_centered_scale(uint16_t adc_value) {
     // Transforma de 0-4095 para -2047 a +2047
@@ -368,19 +363,30 @@ void y_task(void *p) {
 
 
 void uart_task(void *p) {
+    oled_btn_init();
     adc_t data;
+    adc_t btn;
+    uart_init(HC06_UART_ID, HC06_BAUD_RATE);
+    gpio_set_function(HC06_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(HC06_RX_PIN, GPIO_FUNC_UART);
+    gpio_init(HC06_PIN);  // Adicionado
+    gpio_set_dir(HC06_PIN, GPIO_OUT);
+    hc06_init("aps2_legal", "1234");
 
     while (1) {
-        if (xQueueReceive(xQueueAdc, &data, portMAX_DELAY)){
-            write_package(data);
+        if (xQueueReceive(xQueueAdc, &data, 10)){
+           write_package(data);
+        }
+        if (xQueueReceive(xQueueBtn, &btn, 10)){
+            write_package(btn);
         }
     }
 }
 
-    int main() {
+int main() {
     stdio_init_all();
 
-    //printf("Start bluetooth task\n");
+    printf("Start bluetooth task\n");
 
     xQueueBtn = xQueueCreate(32, sizeof(adc_t));
     xQueueAdc = xQueueCreate(32, sizeof(adc_t));
@@ -390,7 +396,6 @@ void uart_task(void *p) {
     xTaskCreate(uart_task, "uart_task", 4096, NULL, 1, NULL);
 
     //xTaskCreate(hc06_task, "UART_Task 1", 4096, NULL, 1, NULL);
-    xTaskCreate(btns_task, "btns_task", 4095, NULL, 1, NULL);
 
     vTaskStartScheduler();
 

@@ -1,7 +1,9 @@
 import serial
 import uinput
 
-ser = serial.Serial('/dev/rfcomm0', 9600, timeout=1)#115200
+ser = serial.Serial('/dev/rfcomm0', 115200, timeout=10)#115200
+#ser = serial.Serial('/dev/ttyACM0', 115200)
+#sudo rfcomm connect /dev/rfcomm0 98:DA:60:08:7F:CA
 
 
 # Create new mouse device
@@ -70,6 +72,8 @@ try:
 
         # Read 4 bytes from UART
         data = ser.read(3)
+        # if len(data) == 0:
+        #     continue
         axis, value = parse_data(data)
         if (axis == 0 or axis == 1):
             move_mouse(axis, value)
