@@ -5,6 +5,7 @@
 #include <task.h>
 #include <semphr.h>
 #include <queue.h>
+#include <math.h>
 
 #include <string.h>
 
@@ -14,6 +15,9 @@
 #include "hc06.h"
 
 #include "hardware/adc.h"
+
+const int STATE_PIN = 3;
+const int LED_PIN = 7;
 
 const int BTN_PIN_1 = 12;
 const int BTN_PIN_2 = 13;
@@ -32,6 +36,8 @@ const int PIN_Y = 27;
 
 QueueHandle_t xQueueBtn;
 QueueSetHandle_t xQueueAdc;
+
+SemaphoreHandle_t xSemaphoreLed;
 
 typedef struct adc {
     int axis;
@@ -164,7 +170,15 @@ void gpio_callback(uint gpio, uint32_t events) {
         }
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
-    
+    if (gpio == STATE_PIN){
+        if (events == 0x4) { //fall edge
+            xSemaphoreGiveFromISR(xSemaphoreLed, 0);
+            printf("FALL");
+        } else { //rise edge
+            xSemaphoreGiveFromISR(xSemaphoreLed, 0);
+            printf("RISE");
+        }
+    }
 }
 
 void oled_btn_init(void) {
@@ -383,6 +397,35 @@ void uart_task(void *p) {
     }
 }
 
+void led_task(void *p) {
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    gpio_init(STATE_PIN);
+    gpio_set_dir(STATE_PIN, GPIO_IN);
+    gpio_pull_up(STATE_PIN);
+    gpio_set_irq_enabled_with_callback(
+        STATE_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+
+    int verif = 0;
+
+    while(1) {
+        // gpio_put(LED_PIN, 1);
+        if (xSemaphoreTake(xSemaphoreLed, 0)) {
+            verif = fabs(verif-1);
+            printf("%d", verif);
+        }
+        if (verif) {
+            gpio_put(LED_PIN, 1);
+        } else {
+            gpio_put(LED_PIN, 1);
+            vTaskDelay(pdMS_TO_TICKS(500));
+            gpio_put(LED_PIN, 0);
+            vTaskDelay(pdMS_TO_TICKS(500));
+        }
+    }
+}
+
 int main() {
     stdio_init_all();
 
@@ -391,9 +434,12 @@ int main() {
     xQueueBtn = xQueueCreate(32, sizeof(adc_t));
     xQueueAdc = xQueueCreate(32, sizeof(adc_t));
 
+    xSemaphoreLed = xSemaphoreCreateBinary();
+
     xTaskCreate(x_task, "x_task", 4096, NULL, 1, NULL);
     xTaskCreate(y_task, "y_task", 4096, NULL, 1, NULL);
     xTaskCreate(uart_task, "uart_task", 4096, NULL, 1, NULL);
+    xTaskCreate(led_task, "led_task", 4096, NULL, 1, NULL);
 
     //xTaskCreate(hc06_task, "UART_Task 1", 4096, NULL, 1, NULL);
 
