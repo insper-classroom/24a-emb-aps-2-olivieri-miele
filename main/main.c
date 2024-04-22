@@ -410,7 +410,6 @@ void led_task(void *p) {
     int verif = 0;
 
     while(1) {
-        // gpio_put(LED_PIN, 1);
         if (xSemaphoreTake(xSemaphoreLed, 0)) {
             verif = fabs(verif-1);
             printf("%d", verif);
