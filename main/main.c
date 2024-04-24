@@ -19,14 +19,14 @@
 const int STATE_PIN = 3;
 const int LED_PIN = 7;
 
-const int BTN_PIN_1 = 12;
-const int BTN_PIN_2 = 13;
-const int BTN_PIN_3 = 14;
-const int BTN_PIN_4 = 15;
-const int BTN_PIN_5 = 16;
-const int BTN_PIN_6 = 17;
-const int BTN_PIN_7 = 18;
-const int BTN_PIN_8 = 19;
+const int BTN_PIN_1 = 12; //w
+const int BTN_PIN_2 = 13; //a
+const int BTN_PIN_3 = 14; //s
+const int BTN_PIN_4 = 15; //d
+const int BTN_PIN_5 = 16; //fire (left)
+const int BTN_PIN_6 = 17; //aim (shift)
+const int BTN_PIN_7 = 18; //jump (space)
+const int BTN_PIN_8 = 19; //f (melee)
 const int BTN_PIN_9 = 20;
 const int BTN_PIN_10 = 21;
 const int BTN_PIN_11 = 22;
@@ -34,8 +34,11 @@ const int BTN_PIN_11 = 22;
 const int PIN_X = 26;
 const int PIN_Y = 27;
 
+const int VIB_PIN = 11;
+
 QueueHandle_t xQueueBtn;
 QueueSetHandle_t xQueueAdc;
+QueueSetHandle_t xQueueVib;
 
 SemaphoreHandle_t xSemaphoreLed;
 
@@ -101,10 +104,16 @@ void gpio_callback(uint gpio, uint32_t events) {
         xQueueSendFromISR(xQueueBtn, &btn, 0);
     }
     if (gpio == BTN_PIN_5){
+        printf("B5\n");
+        printf("%d, %d\n",gpio,events);
         if (events == 0x4) { //fall edge
+            printf(" FALL\n");
+            gpio_put(VIB_PIN, 1);
             btn.axis = 15;
             btn.val = 1;
-        } else { //rise edge
+        } else if (events == 0x8){ //rise edge
+            printf(" RISE\n");
+            gpio_put(VIB_PIN, 0);
             btn.axis = 15;
             btn.val = 0;
         }
@@ -190,76 +199,66 @@ void oled_btn_init(void) {
     gpio_init(BTN_PIN_2);
     gpio_set_dir(BTN_PIN_2, GPIO_IN);
     gpio_pull_up(BTN_PIN_2);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
     gpio_init(BTN_PIN_3);
     gpio_set_dir(BTN_PIN_3, GPIO_IN);
     gpio_pull_up(BTN_PIN_3);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_3, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_3, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
     gpio_init(BTN_PIN_4);  // Adicionado
     gpio_set_dir(BTN_PIN_4, GPIO_IN);
     gpio_pull_up(BTN_PIN_4);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_4, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_4, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
     gpio_init(BTN_PIN_5);  // Adicionado
     gpio_set_dir(BTN_PIN_5, GPIO_IN);
     gpio_pull_up(BTN_PIN_5);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_5, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_5, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
     gpio_init(BTN_PIN_6);  // Adicionado
     gpio_set_dir(BTN_PIN_6, GPIO_IN);
     gpio_pull_up(BTN_PIN_6);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_6, GPIO_IRQ_EDGE_FALL |GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_6, GPIO_IRQ_EDGE_FALL |GPIO_IRQ_EDGE_RISE, true);
         
     gpio_init(BTN_PIN_7);  // Adicionado
     gpio_set_dir(BTN_PIN_7, GPIO_IN);
     gpio_pull_up(BTN_PIN_7);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_7, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_7, GPIO_IRQ_EDGE_FALL, true);
     
     gpio_init(BTN_PIN_8);  // Adicionado
     gpio_set_dir(BTN_PIN_8, GPIO_IN);
     gpio_pull_up(BTN_PIN_8);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_8, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_8, GPIO_IRQ_EDGE_FALL, true);
 
     gpio_init(BTN_PIN_9);  // Adicionado
     gpio_set_dir(BTN_PIN_9, GPIO_IN);
     gpio_pull_up(BTN_PIN_9);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_9, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_9, GPIO_IRQ_EDGE_FALL, true);
 
     gpio_init(BTN_PIN_10);  // Adicionado
     gpio_set_dir(BTN_PIN_10, GPIO_IN);
     gpio_pull_up(BTN_PIN_10);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_10, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_10, GPIO_IRQ_EDGE_FALL, true);
 
     gpio_init(BTN_PIN_11);  // Adicionado
     gpio_set_dir(BTN_PIN_11, GPIO_IN);
     gpio_pull_up(BTN_PIN_11);
-    gpio_set_irq_enabled_with_callback(
-        BTN_PIN_11, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        BTN_PIN_11, GPIO_IRQ_EDGE_FALL, true);
+
+    gpio_init(VIB_PIN);  // Adicionado
+    gpio_set_dir(VIB_PIN, GPIO_OUT);
 }
-
-
-// void hc06_task(void *p) {
-//     uart_init(HC06_UART_ID, HC06_BAUD_RATE);
-//     gpio_set_function(HC06_TX_PIN, GPIO_FUNC_UART);
-//     gpio_set_function(HC06_RX_PIN, GPIO_FUNC_UART);
-//     hc06_init("aps2_legal", "1234");
-
-//     while (true) {
-//         uart_puts(HC06_UART_ID, "OLAAA ");
-//         vTaskDelay(pdMS_TO_TICKS(100));
-//     }
-// }
 
 
 int transform_to_centered_scale(uint16_t adc_value) {
@@ -318,12 +317,14 @@ void x_task(void  *p) {
         x.val = movingAverage;
         //x.val = result;
 
-        xQueueSend(xQueueAdc, &x, 0);
+        if (x.val != 0) {
+            xQueueSend(xQueueAdc, &x, 0);
+        }
 
         // Avança o índice da janela circularmente
         dataIndex = (dataIndex + 1) % windowSize;
 
-        vTaskDelay(pdMS_TO_TICKS(125));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -363,13 +364,14 @@ void y_task(void *p) {
         y.axis = 1;
         y.val = movingAverage;
         //y.val = result;
-
-        xQueueSend(xQueueAdc, &y, 0);
+        if (y.val != 0) {
+            xQueueSend(xQueueAdc, &y, 0);
+        }
 
         // Avança o índice da janela circularmente
         dataIndex = (dataIndex + 1) % windowSize;
 
-        vTaskDelay(pdMS_TO_TICKS(125));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -402,10 +404,10 @@ void led_task(void *p) {
     gpio_init(STATE_PIN);
     gpio_set_dir(STATE_PIN, GPIO_IN);
     gpio_pull_up(STATE_PIN);
-    gpio_set_irq_enabled_with_callback(
-        STATE_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    gpio_set_irq_enabled(
+        STATE_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
-    int verif = 0;
+    int verif = 1;
 
     while(1) {
         if (xSemaphoreTake(xSemaphoreLed, 0)) {
@@ -422,6 +424,10 @@ void led_task(void *p) {
     }
 }
 
+void vib_task(void *p) {
+    
+}
+
 int main() {
     stdio_init_all();
 
@@ -436,8 +442,6 @@ int main() {
     xTaskCreate(y_task, "y_task", 4096, NULL, 1, NULL);
     xTaskCreate(uart_task, "uart_task", 4096, NULL, 1, NULL);
     xTaskCreate(led_task, "led_task", 4096, NULL, 1, NULL);
-
-    //xTaskCreate(hc06_task, "UART_Task 1", 4096, NULL, 1, NULL);
 
     vTaskStartScheduler();
 
