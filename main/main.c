@@ -173,10 +173,8 @@ void gpio_callback(uint gpio, uint32_t events) {
     if (gpio == STATE_PIN){
         if (events == 0x4) { //fall edge
             xSemaphoreGiveFromISR(xSemaphoreLed, 0);
-            printf("FALL");
         } else { //rise edge
             xSemaphoreGiveFromISR(xSemaphoreLed, 0);
-            printf("RISE");
         }
     }
 }
@@ -325,7 +323,7 @@ void x_task(void  *p) {
         // Avança o índice da janela circularmente
         dataIndex = (dataIndex + 1) % windowSize;
 
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(125));
     }
 }
 
@@ -371,7 +369,7 @@ void y_task(void *p) {
         // Avança o índice da janela circularmente
         dataIndex = (dataIndex + 1) % windowSize;
 
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(125));
     }
 }
 
@@ -388,10 +386,10 @@ void uart_task(void *p) {
     hc06_init("aps2_legal", "1234");
 
     while (1) {
-        if (xQueueReceive(xQueueAdc, &data, 10)){
+        if (xQueueReceive(xQueueAdc, &data, 1)){
            write_package(data);
         }
-        if (xQueueReceive(xQueueBtn, &btn, 10)){
+        if (xQueueReceive(xQueueBtn, &btn, 1)){
             write_package(btn);
         }
     }
@@ -412,7 +410,6 @@ void led_task(void *p) {
     while(1) {
         if (xSemaphoreTake(xSemaphoreLed, 0)) {
             verif = fabs(verif-1);
-            printf("%d", verif);
         }
         if (verif) {
             gpio_put(LED_PIN, 1);
@@ -428,10 +425,10 @@ void led_task(void *p) {
 int main() {
     stdio_init_all();
 
-    printf("Start bluetooth task\n");
+    //printf("Start bluetooth task\n");
 
     xQueueBtn = xQueueCreate(32, sizeof(adc_t));
-    xQueueAdc = xQueueCreate(32, sizeof(adc_t));
+    xQueueAdc = xQueueCreate(2, sizeof(adc_t));
 
     xSemaphoreLed = xSemaphoreCreateBinary();
 

@@ -1,7 +1,7 @@
 import serial
 import uinput
 
-ser = serial.Serial('/dev/rfcomm0', 115200, timeout=10)#115200
+ser = serial.Serial('/dev/rfcomm0', 11520, timeout=10)#115200
 #ser = serial.Serial('/dev/ttyACM0', 115200)
 #sudo rfcomm connect /dev/rfcomm0 98:DA:60:08:7F:CA
 
