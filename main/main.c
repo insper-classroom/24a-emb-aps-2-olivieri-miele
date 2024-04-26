@@ -27,18 +27,19 @@ const int BTN_PIN_5 = 16; //fire (left)
 const int BTN_PIN_6 = 17; //aim (shift)
 const int BTN_PIN_7 = 18; //jump (space)
 const int BTN_PIN_8 = 19; //f (melee)
-const int BTN_PIN_9 = 20;
-const int BTN_PIN_10 = 21;
-const int BTN_PIN_11 = 22;
+const int BTN_PIN_9 = 20; //r (reload)
+const int BTN_PIN_10 = 21;//e (troca arma)
+const int BTN_PIN_11 = 22;//q granada
 
 const int PIN_X = 26;
 const int PIN_Y = 27;
 
 const int VIB_PIN = 11;
 
+#define DEBOUNCE_TIME_MS 50  // Tempo de debounce em milissegundo
+
 QueueHandle_t xQueueBtn;
-QueueSetHandle_t xQueueAdc;
-QueueSetHandle_t xQueueVib;
+QueueHandle_t xQueueAdc;
 
 SemaphoreHandle_t xSemaphoreLed;
 
@@ -63,126 +64,115 @@ void write_package(adc_t data){
 
 void gpio_callback(uint gpio, uint32_t events) {
     adc_t btn;
-    if (gpio == BTN_PIN_1){
-        if (events == 0x4) { //fall edge
+    
+    static TickType_t last_time_btn7 = 0; // Tempo da última alteração válida para BTN_PIN_7
+    TickType_t current_time = xTaskGetTickCountFromISR(); 
+
+    if (events == 0x4) { // FALL
+        if (gpio == BTN_PIN_1) {
             btn.axis = 11;
             btn.val = 1;
-        } else { //rise edge
-            btn.axis = 11;
-            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_2){
-        if (events == 0x4) { //fall edge
+        if (gpio == BTN_PIN_2) {
             btn.axis = 12;
             btn.val = 1;
-        } else { //rise edge
-            btn.axis = 12;
-            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_3){
-        if (events == 0x4) { //fall edge
+        if (gpio == BTN_PIN_3) {
             btn.axis = 13;
             btn.val = 1;
-        } else { //rise edge
-            btn.axis = 13;
-            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_4){
-        if (events == 0x4) { //fall edge
+        if (gpio == BTN_PIN_4) {
             btn.axis = 14;
             btn.val = 1;
-        } else { //rise edge
-            btn.axis = 14;
-            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_5){
-        printf("B5\n");
-        printf("%d, %d\n",gpio,events);
-        if (events == 0x4) { //fall edge
-            printf(" FALL\n");
+        if (gpio == BTN_PIN_5) {
             gpio_put(VIB_PIN, 1);
             btn.axis = 15;
             btn.val = 1;
-        } else if (events == 0x8){ //rise edge
-            printf(" RISE\n");
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_6) {
+            btn.axis = 16;
+            btn.val = 1;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_7) {
+            if ((current_time - last_time_btn7) * portTICK_PERIOD_MS >= DEBOUNCE_TIME_MS) {
+                btn.axis = 17;
+                btn.val = 1;
+                xQueueSendFromISR(xQueueBtn, &btn, 0);
+                last_time_btn7 = current_time;
+            }
+        }
+        if (gpio == BTN_PIN_8) {
+            gpio_put(VIB_PIN, 1);
+            btn.axis = 18;
+            btn.val = 1;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_9) {
+            btn.axis = 19;
+            btn.val = 1;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_10) {
+            btn.axis = 20;
+            btn.val = 1;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_11) {
+            gpio_put(VIB_PIN, 1);
+            btn.axis = 21;
+            btn.val = 1;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == STATE_PIN) {
+            xSemaphoreGiveFromISR(xSemaphoreLed, 0);
+        }
+
+    } else if (events == 0x8) { //RISE
+        if (gpio == BTN_PIN_1) {
+            btn.axis = 11;
+            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_2) {
+            btn.axis = 12;
+            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_3) {
+            btn.axis = 13;
+            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_4) {
+            btn.axis = 14;
+            btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
+        }
+        if (gpio == BTN_PIN_5) {
             gpio_put(VIB_PIN, 0);
             btn.axis = 15;
             btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_6){
-        if (events == 0x4) { //fall edge
-            btn.axis = 16;
-            btn.val = 1;
-        } else { //rise edge
+        if (gpio == BTN_PIN_6) {
             btn.axis = 16;
             btn.val = 0;
+            xQueueSendFromISR(xQueueBtn, &btn, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_7){
-        if (events == 0x4) { //fall edge
-            btn.axis = 17;
-            btn.val = 1;
-        } else { //rise edge
-            btn.axis = 17;
-            btn.val = 0;
+        if (gpio == BTN_PIN_8) {
+            gpio_put(VIB_PIN, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_8){
-        if (events == 0x4) { //fall edge
-            btn.axis = 18;
-            btn.val = 1;
-        } else { //rise edge
-            btn.axis = 18;
-            btn.val = 0;
+        if (gpio == BTN_PIN_11) {
+            gpio_put(VIB_PIN, 0);
         }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_9){
-        if (events == 0x4) { //fall edge
-            btn.axis = 19;
-            btn.val = 1;
-        } else { //rise edge
-            btn.axis = 19;
-            btn.val = 0;
-        }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_10){
-        if (events == 0x4) { //fall edge
-            btn.axis = 20;
-            btn.val = 1;
-        } else { //rise edge
-            btn.axis = 20;
-            btn.val = 0;
-        }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == BTN_PIN_11){
-        if (events == 0x4) { //fall edge
-            btn.axis = 21;
-            btn.val = 1;
-        } else { //rise edge
-            btn.axis = 21;
-            btn.val = 0;
-        }
-        xQueueSendFromISR(xQueueBtn, &btn, 0);
-    }
-    if (gpio == STATE_PIN){
-        if (events == 0x4) { //fall edge
-            xSemaphoreGiveFromISR(xSemaphoreLed, 0);
-        } else { //rise edge
+        if (gpio == STATE_PIN) {
             xSemaphoreGiveFromISR(xSemaphoreLed, 0);
         }
     }
@@ -236,7 +226,7 @@ void oled_btn_init(void) {
     gpio_set_dir(BTN_PIN_8, GPIO_IN);
     gpio_pull_up(BTN_PIN_8);
     gpio_set_irq_enabled(
-        BTN_PIN_8, GPIO_IRQ_EDGE_FALL, true);
+        BTN_PIN_8, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
     gpio_init(BTN_PIN_9);  // Adicionado
     gpio_set_dir(BTN_PIN_9, GPIO_IN);
@@ -254,7 +244,7 @@ void oled_btn_init(void) {
     gpio_set_dir(BTN_PIN_11, GPIO_IN);
     gpio_pull_up(BTN_PIN_11);
     gpio_set_irq_enabled(
-        BTN_PIN_11, GPIO_IRQ_EDGE_FALL, true);
+        BTN_PIN_11, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
     gpio_init(VIB_PIN);  // Adicionado
     gpio_set_dir(VIB_PIN, GPIO_OUT);
@@ -362,7 +352,7 @@ void y_task(void *p) {
 
         adc_t y;
         y.axis = 1;
-        y.val = movingAverage;
+        y.val = -movingAverage;
         //y.val = result;
         if (y.val != 0) {
             xQueueSend(xQueueAdc, &y, 0);

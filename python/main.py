@@ -33,9 +33,9 @@ num_2_key = {
     16: uinput.KEY_LEFTSHIFT, #Aim
     17: uinput.KEY_SPACE, #Jump
     18: uinput.KEY_F, #Melee
-    19: uinput.KEY_R,
-    20: uinput.KEY_E,
-    21: uinput.KEY_Q
+    19: uinput.KEY_R, #Reload
+    20: uinput.KEY_E, #Wapon Swap
+    21: uinput.KEY_Q #Granade
 }
 
 
