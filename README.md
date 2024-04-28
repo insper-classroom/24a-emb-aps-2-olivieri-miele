@@ -2,47 +2,28 @@
 
 ## Comandos:
 - Joystick da esquerda: Movimentar o personagem
-- Botão gatilho da esquerda: Granada
-- Joystick da direita: Movimentar a tela
-- Botão gatilho da direita: Mirar
-- Botão "A": Atirar
-- Botão "F": Facada
-- Botão "R": Recarregar
-- Botão "P": Pular
+- Joystick central: Movimentar a tela
+- Botão superior esquerdo: Atirar
+- Botão superior central: Mirar
+- Botão superior direito: Recarregar
+- Botão inferior esquerdo: Granada
+- Botão inferior central: Facada
+- Botão inferior direito: Trocar de Arma
+- Botão 'sozinho': pular
 
-Conectar HC06 no 5V e gnd, pino TX no `GP5` e pino RX no `GP4`. Também é necessário conectar o pino `STATE` do bluetooth no pino `GP3`.
-
-O projeto está organizado da seguinte maneira:
+  ## Como ligar:
+  Acione o switch para ligar o controle,feito isso ficará piscando um led até você conectar o controle por bluetooth no seu computador. Para conectá-lo, você deve executar esse comando no terminal (dentro da pasta python):
+  - sudo rfcomm connect /dev/rfcomm0 98:DA:60:08:7F:CA
+ 
+  ## O projeto está organizado da seguinte maneira:
 
 - `hc06.h`: Arquivo de headfile com configurações do HC06, tais como pinos, uart, ..
 - `hc06.c`: Arquivo `.c` com implementação das funções auxiliares para configurar o módulo bluetooth
-    - `bool hc06_check_connection();`
-    - `bool hc06_set_name(char name[]);`
-    - `bool hc06_set_pin(char pin[]);`
-    - `bool hc06_set_at_mode(int on);`
-    - `bool hc06_init(char name[], char pin[]);`
+- `main.c` Arquivo principal com os comandos do controle com inicialização do módulo bluetooth
 
-- `main.c` Arquivo principal com inicialização do módulo bluetooth
+  Diagrama de blocos:
+![WhatsApp Image 2024-04-28 at 14 57 11](https://github.com/insper-classroom/24a-emb-aps-2-olivieri-miele/assets/103431278/c8902b30-f1b1-4bce-b543-e6eb5e8ffcbb)
 
-```c
-void hc06_task(void *p) {
-    uart_init(HC06_UART_ID, HC06_BAUD_RATE);
-    gpio_set_function(HC06_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(HC06_RX_PIN, GPIO_FUNC_UART);
-    hc06_init("aps2_legal", "1234");
-
-    while (true) {
-        uart_puts(HC06_UART_ID, "OLAAA ");
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-}
-```
-
-Extra ao que foi feito em sala de aula, eu adicionei o `hc06_set_at_mode` que força o módulo bluetooth entrar em modo `AT`, caso contrário ele fica 
-conectado no equipamento e não recebe mais comandos.
-
-## No linux
-
-Para conectar o bluetooth no linux usar os passos descritos no site:
-
-- https://marcqueiroz.wordpress.com/aventuras-com-arduino/configurando-hc-06-bluetooth-module-device-no-ubuntu-12-04/
+Fotos do controle:
+![WhatsApp Image 2024-04-28 at 20 04 18](https://github.com/insper-classroom/24a-emb-aps-2-olivieri-miele/assets/103431278/216664e9-ab3c-4448-86b6-7e8038c676f0)
+![WhatsApp Image 2024-04-28 at 20 04 16](https://github.com/insper-classroom/24a-emb-aps-2-olivieri-miele/assets/103431278/739282eb-eb0a-4b5e-96ee-6966a5e8d407)
